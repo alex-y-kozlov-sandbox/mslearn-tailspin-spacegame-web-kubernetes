@@ -23,7 +23,7 @@ stages:
         buildContext: $(Build.Repository.LocalPath)
         repository: $(webRepository)
         dockerfile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.Web/Dockerfile'
-        containerRegistry: 'act-01-yk'
+        containerRegistry: 'acr-01-yk'
         tags: |
           $(tag)
 
@@ -34,7 +34,7 @@ stages:
         buildContext: $(Build.Repository.LocalPath)
         repository: $(leaderboardRepository)
         dockerfile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.LeaderboardContainer/Dockerfile'
-        containerRegistry: 'act-01-yk'
+        containerRegistry: 'acr-01-yk'
         tags: |
           $(tag)
 
@@ -63,7 +63,7 @@ stages:
             inputs:
               action: createSecret
               secretName: $(imagePullSecret)
-              dockerRegistryEndpoint: 'act-01-yk'
+              dockerRegistryEndpoint: 'acr-01-yk'
               kubernetesServiceConnection: 'spike-aks-01-yk-default'
               namespace: 'default'
           - task: KubernetesManifest@0
