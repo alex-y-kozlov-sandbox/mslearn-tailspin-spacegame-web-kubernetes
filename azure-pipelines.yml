@@ -23,7 +23,7 @@ stages:
         buildContext: $(Build.Repository.LocalPath)
         repository: $(webRepository)
         dockerfile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.Web/Dockerfile'
-        containerRegistry: 'AcrName'
+        containerRegistry: 'act-01-yk'
         tags: |
           $(tag)
 
@@ -34,7 +34,7 @@ stages:
         buildContext: $(Build.Repository.LocalPath)
         repository: $(leaderboardRepository)
         dockerfile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.LeaderboardContainer/Dockerfile'
-        containerRegistry: 'AcrName'
+        containerRegistry: 'act-01-yk'
         tags: |
           $(tag)
 
