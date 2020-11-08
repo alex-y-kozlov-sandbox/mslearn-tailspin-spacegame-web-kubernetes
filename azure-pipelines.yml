@@ -63,7 +63,7 @@ stages:
             inputs:
               action: createSecret
               secretName: $(imagePullSecret)
-              dockerRegistryEndpoint: 'AcrName'
+              dockerRegistryEndpoint: 'act-01-yk'
               kubernetesServiceConnection: 'spike-aks-01-yk-default'
               namespace: 'default'
           - task: KubernetesManifest@0
