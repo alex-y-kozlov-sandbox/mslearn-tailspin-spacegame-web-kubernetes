@@ -23,7 +23,7 @@ stages:
         buildContext: $(Build.Repository.LocalPath)
         repository: $(webRepository)
         dockerfile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.Web/Dockerfile'
-        containerRegistry: 'Container Registry Connection'
+        containerRegistry: 'AcrName'
         tags: |
           $(tag)
 
@@ -34,7 +34,7 @@ stages:
         buildContext: $(Build.Repository.LocalPath)
         repository: $(leaderboardRepository)
         dockerfile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.LeaderboardContainer/Dockerfile'
-        containerRegistry: 'Container Registry Connection'
+        containerRegistry: 'AcrName'
         tags: |
           $(tag)
 
@@ -42,19 +42,41 @@ stages:
       artifact: manifests
 
 - stage: 'Deploy'
-  displayName: 'Deploy the container3'
+  displayName: 'Deploy the containers'
   dependsOn: Build
   jobs:
-  - job: 'Deploy'
-    displayName: 'Deploy job'
+  - deployment: Deploy
+    displayName: Deploy
     pool:
       vmImage: 'ubuntu-18.04'
     environment: 'spike.default'
     variables:
     - group: Release
-    steps:
-    - task: AzureWebAppContainer@1
-      inputs:
-       appName: $(WebAppName)
-       azureSubscription: 'Resource Manager - Tailspin - Space Game'
-       imageName: $(RegistryName)/$(webRepository):$(build.buildId)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: manifests
+          - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
+            inputs:
+              action: createSecret
+              secretName: $(imagePullSecret)
+              dockerRegistryEndpoint: 'AcrName'
+              kubernetesServiceConnection: 'spike-aks-01-yk-default'
+              namespace: 'default'
+          - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster
+            inputs:
+              action: deploy
+              kubernetesServiceConnection: 'spike-aks-01-yk-default'
+              namespace: 'default'
+              manifests: |
+                $(Pipeline.Workspace)/manifests/deployment.yml
+                $(Pipeline.Workspace)/manifests/service.yml
+              imagePullSecrets: |
+                $(imagePullSecret)
+              containers: |
+                $(RegistryName)/$(webRepository):$(tag)
+                $(RegistryName)/$(leaderboardRepository):$(tag)
